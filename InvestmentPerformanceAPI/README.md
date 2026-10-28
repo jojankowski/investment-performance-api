@@ -4,7 +4,7 @@ Small .NET 10 web API for the investment performance exercise.
 
 ## How to run
 
-You need the .NET 10 SDK. All commands are run from this folder (`InvestmentPerformanceAPI`).
+You need the .NET 10 SDK, and Node.js 20.19+ or 22.12+ for the optional Vue page. Commands below are run from the `InvestmentPerformanceAPI` folder.
 
 ```
 cd src/InvestmentPerformance.Api
@@ -12,6 +12,16 @@ dotnet run
 ```
 
 Then open http://localhost:5219/scalar/v1 in your browser (Visual Studio opens it for you). You can hit the endpoints from there. If you're in Visual Studio or Rider, there's also `InvestmentPerformance.Api.http` in the project folder with requests for the cases I tested.
+
+There's also a Vue page in `src/InvestmentPerformance.Web`. With the API running, open a second terminal:
+
+```
+cd src/InvestmentPerformance.Web
+npm install
+npm run dev
+```
+
+Then go to http://localhost:5173.
 
 Tests: `dotnet test`
 
@@ -22,9 +32,9 @@ GET /api/users/{userId}/investments
 GET /api/users/{userId}/investments/{investmentId}
 ```
 
-The first one gives you the id and name of each investment. The second gives you the details. It also lists each purchase separately.
+The first one gives you the id and name of each investment. The second gives you the details: shares, cost basis per share, current price, current value, term and total gain/loss. It also lists each purchase separately.
 
-An unknown user or investment is a 404, and an id below 1 is a 400. Errors come back in the standard problem details format.
+An unknown user or investment is a 404, and an id below 1 is a 400. Unexpected errors are logged and come back as a 500 without any internal details. All errors use the standard problem details format.
 
 ## Test data
 
@@ -50,6 +60,7 @@ Other stuff:
 - Cost basis is just the purchase price. Fees and commissions aren't included.
 - Bonds and mutual funds use the same shares times price math as stocks. Real bond pricing (face value, accrued interest) is out of scope.
 - Current prices live in the database. They're behind an interface so a real price feed could be swapped in.
+- I used SQLite so it runs with just `dotnet run` and nothing to install. I know SQL Server is preferred. Switching is a package swap, `UseSqlServer` in `Program.cs` and a new connection string in `appsettings.json`. Nothing else in the code is SQLite-specific.
 - There's no auth, so the user id just comes from the URL. If you ask for someone else's investment you get a 404 instead of a 403, so you can't tell which ids exist.
 - I only handled buys. Sells would need something like FIFO to decide which lots get sold.
 - There's no HTTPS redirect in the app. In production TLS would normally end at a load balancer or proxy in front of it.
