@@ -9,8 +9,8 @@ public class InvestmentRepository(AppDbContext db) : IInvestmentRepository
     public Task<bool> UserExistsAsync(int userId, CancellationToken cancellationToken) =>
         db.Users.AnyAsync(u => u.Id == userId, cancellationToken);
 
-    public Task<List<Investment>> GetInvestmentsAsync(int userId, CancellationToken cancellationToken) =>
-        CurrentInvestments(userId)
+    public async Task<IReadOnlyList<Investment>> GetInvestmentsAsync(int userId, CancellationToken cancellationToken) =>
+        await CurrentInvestments(userId)
             .OrderBy(i => i.Security.Name)
             .ToListAsync(cancellationToken);
 

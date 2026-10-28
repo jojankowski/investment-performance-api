@@ -45,7 +45,9 @@ async function loadDetails(investmentId) {
     }
 }
 
+// Totals are shown in cents. Per-share prices keep up to the 4 decimal places the API returns.
 const money = (amount) => amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+const pricePerShare = (amount) => amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 4 })
 </script>
 
 <template>
@@ -79,8 +81,8 @@ const money = (amount) => amount.toLocaleString('en-US', { style: 'currency', cu
             <table>
                 <tbody>
                     <tr><th>Shares</th><td>{{ details.shares }}</td></tr>
-                    <tr><th>Cost basis per share</th><td>{{ money(details.costBasisPerShare) }}</td></tr>
-                    <tr><th>Current price</th><td>{{ money(details.currentPrice) }}</td></tr>
+                    <tr><th>Cost basis per share</th><td>{{ pricePerShare(details.costBasisPerShare) }}</td></tr>
+                    <tr><th>Current price</th><td>{{ pricePerShare(details.currentPrice) }}</td></tr>
                     <tr><th>Current value</th><td>{{ money(details.currentValue) }}</td></tr>
                     <tr><th>Term</th><td>{{ details.term }}</td></tr>
                     <tr>

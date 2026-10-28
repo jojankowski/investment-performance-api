@@ -15,7 +15,7 @@ namespace InvestmentPerformance.Tests.Controllers;
 // Expected values come from SeedData as of TestDates.AsOfDate.
 public class InvestmentsControllerTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() }
     };
@@ -23,17 +23,23 @@ public class InvestmentsControllerTests(ApiFactory factory) : IClassFixture<ApiF
     private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
-    public async Task GetInvestments_UserWithInvestments_ReturnsNamesInOrder()
+    public async Task GetInvestments_UserWithInvestments_ReturnsIdAndNameInNameOrder()
     {
-        var investments = await _client.GetFromJsonAsync<List<InvestmentSummary>>("/api/users/1/investments", Json);
+        var investments = await _client.GetFromJsonAsync<List<InvestmentSummary>>("/api/users/1/investments", JsonOptions);
 
-        Assert.Equal(["Big SOUP Incorporated", "Piggy Bank Total Market Fund", "Rainy Day 10 Year Bond"], investments!.Select(i => i.Name));
+        Assert.Equal(
+            [
+                new InvestmentSummary(1, "Big SOUP Incorporated"),
+                new InvestmentSummary(3, "Piggy Bank Total Market Fund"),
+                new InvestmentSummary(2, "Rainy Day 10 Year Bond")
+            ],
+            investments!);
     }
 
     [Fact]
     public async Task GetInvestments_UserWithNoInvestments_ReturnsEmptyList()
     {
-        var investments = await _client.GetFromJsonAsync<List<InvestmentSummary>>("/api/users/3/investments", Json);
+        var investments = await _client.GetFromJsonAsync<List<InvestmentSummary>>("/api/users/3/investments", JsonOptions);
 
         Assert.Empty(investments!);
     }
@@ -41,7 +47,7 @@ public class InvestmentsControllerTests(ApiFactory factory) : IClassFixture<ApiF
     [Fact]
     public async Task GetInvestmentDetails_TwoLots_ReturnsTotalsAndMixedTerm()
     {
-        var details = await _client.GetFromJsonAsync<InvestmentDetails>("/api/users/1/investments/1", Json);
+        var details = await _client.GetFromJsonAsync<InvestmentDetails>("/api/users/1/investments/1", JsonOptions);
 
         Assert.Equal("SOUP", details!.Symbol);
         Assert.Equal(15, details.Shares);
@@ -64,7 +70,7 @@ public class InvestmentsControllerTests(ApiFactory factory) : IClassFixture<ApiF
     [Fact]
     public async Task GetInvestmentDetails_BoughtExactlyOneYearAgo_IsShortTerm()
     {
-        var details = await _client.GetFromJsonAsync<InvestmentDetails>("/api/users/2/investments/4", Json);
+        var details = await _client.GetFromJsonAsync<InvestmentDetails>("/api/users/2/investments/4", JsonOptions);
 
         Assert.Equal(Term.Short, details!.Term);
         Assert.Equal(-118.40m, details.TotalGainLoss);

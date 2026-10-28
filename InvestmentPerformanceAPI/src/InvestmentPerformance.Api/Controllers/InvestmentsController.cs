@@ -10,6 +10,7 @@ namespace InvestmentPerformance.Api.Controllers;
 [Route("api/users/{userId:int}/investments")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public class InvestmentsController(IInvestmentService investmentService) : ControllerBase
 {
     [HttpGet]

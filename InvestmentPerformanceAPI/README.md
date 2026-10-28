@@ -36,15 +36,17 @@ The first one gives you the id and name of each investment. The second gives you
 
 An unknown user or investment is a 404, and an id below 1 is a 400. Unexpected errors are logged and come back as a 500 without any internal details. All errors use the standard problem details format.
 
+Each lookup writes one structured log line (user and investment ids as named fields), and unexpected errors are logged with the full exception. Requests rejected with a 400 never reach the lookup. Log levels are set in `appsettings.json`. Logs go to the console for now; in production they'd be shipped to a central log platform.
+
 ## Test data
 
-It uses SQLite, and locally the database gets wiped and re-seeded every time the app starts, so the dates are always relative to today. Some users to try:
+It uses SQLite, and locally the database gets wiped and re-seeded every time the app starts, so the dates are always relative to today. Some users to try (investment ids in brackets):
 
-- 1 has a few investments, and one of them was bought twice
-- 2 bought something exactly a year ago (should still be short term)
+- 1 has a few investments (1, 2, 3), and investment 1 was bought twice
+- 2 bought something exactly a year ago, which should still be short term (4)
 - 3 has nothing
-- 4 is down on everything except the duck stock
-- 5 has a short-term gain
+- 4 is down on everything except the duck stock (5, 6)
+- 5 has a short-term gain (7)
 
 ## Assumptions
 
@@ -60,14 +62,18 @@ Other stuff:
 - Cost basis is just the purchase price. Fees and commissions aren't included.
 - Bonds and mutual funds use the same shares times price math as stocks. Real bond pricing (face value, accrued interest) is out of scope.
 - Current prices live in the database. They're behind an interface so a real price feed could be swapped in.
-- I used SQLite so it runs with just `dotnet run` and nothing to install. I know SQL Server is preferred. Switching is a package swap, `UseSqlServer` in `Program.cs` and a new connection string in `appsettings.json`. Nothing else in the code is SQLite-specific.
+- I used SQLite so it runs with just `dotnet run` and nothing to install. I know SQL Server is preferred. Switching is a package swap, `UseSqlServer` in `Program.cs` and a new connection string in `appsettings.json`. Nothing else in the app code is SQLite-specific. The integration tests use an in-memory SQLite database.
+- Demo data is only seeded into an empty database, and outside Development nothing is ever deleted. A real deployment wouldn't seed demo data at all.
 - There's no auth, so the user id just comes from the URL. If you ask for someone else's investment you get a 404 instead of a 403, so you can't tell which ids exist.
 - I only handled buys. Sells would need something like FIFO to decide which lots get sold.
 - There's no HTTPS redirect in the app. In production TLS would normally end at a load balancer or proxy in front of it.
+- The Vue page is a small demo for browsing the API. It has no tests of its own.
 
 ## Things I'd do next
 
 - Auth (take the user id from the token instead of the URL)
-- A real price feed
+- A real price feed, with caching and timeouts
 - SQL Server and proper migrations instead of `EnsureCreated`
 - Health checks
+- Split the API into separate Domain, Application and Infrastructure projects as it grows
+- A CI pipeline that builds and runs the tests on every pull request

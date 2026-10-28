@@ -4,7 +4,6 @@ using InvestmentPerformance.Api.Models.Entities;
 using InvestmentPerformance.Api.Models.Responses;
 using InvestmentPerformance.Api.Services;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 using Moq;
 
 namespace InvestmentPerformance.Tests.Services;
@@ -22,7 +21,7 @@ public class InvestmentServiceTests
         _investmentRepositoryMock.Object,
         _marketPriceProviderMock.Object,
         _performanceCalculatorMock.Object,
-        new FakeTimeProvider(new DateTimeOffset(AsOfDate, TimeOnly.MinValue, TimeSpan.Zero)),
+        TestDates.CreateClock(),
         NullLogger<InvestmentService>.Instance);
 
     [Fact]

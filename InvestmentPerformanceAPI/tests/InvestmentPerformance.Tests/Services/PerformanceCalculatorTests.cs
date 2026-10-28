@@ -11,12 +11,14 @@ public class PerformanceCalculatorTests
     private readonly PerformanceCalculator _calculator = new();
 
     [Theory]
-    [InlineData("2026-08-29", Term.Short)] // bought on the as-of date
-    [InlineData("2025-08-29", Term.Short)] // exactly one year
-    [InlineData("2025-08-28", Term.Long)]  // one year and a day
-    public void GetTerm_ByHoldingPeriod_ReturnsExpectedTerm(string purchased, Term expected)
+    [InlineData(0, 0, Term.Short)] // bought on the as-of date
+    [InlineData(1, 0, Term.Short)] // exactly one year
+    [InlineData(1, 1, Term.Long)]  // one year and a day
+    public void GetTerm_ByHoldingPeriod_ReturnsExpectedTerm(int yearsHeld, int extraDaysHeld, Term expected)
     {
-        Assert.Equal(expected, _calculator.GetTerm(DateOnly.Parse(purchased), AsOfDate));
+        var purchaseDate = AsOfDate.AddYears(-yearsHeld).AddDays(-extraDaysHeld);
+
+        Assert.Equal(expected, _calculator.GetTerm(purchaseDate, AsOfDate));
     }
 
     [Fact]

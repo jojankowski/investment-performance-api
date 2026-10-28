@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace InvestmentPerformance.Tests;
 
@@ -28,7 +27,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<TimeProvider>();
-            services.AddSingleton<TimeProvider>(new FakeTimeProvider(new DateTimeOffset(TestDates.AsOfDate, TimeOnly.MinValue, TimeSpan.Zero)));
+            services.AddSingleton<TimeProvider>(TestDates.CreateClock());
         });
     }
 
