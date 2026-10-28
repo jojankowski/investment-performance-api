@@ -1,6 +1,37 @@
 @InvestmentPerformance.Api_HostAddress = http://localhost:5219
 
-GET {{InvestmentPerformance.Api_HostAddress}}/weatherforecast/
+### User 1's investments: SOUP, OINK, RAIN
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/1/investments
 Accept: application/json
 
-###
+### User 3 exists but has no investments: 200 with []
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/3/investments
+Accept: application/json
+
+### Unknown user: 404
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/99/investments
+Accept: application/json
+
+### Invalid id: 400
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/0/investments
+Accept: application/json
+
+### Two lots, Mixed term
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/1/investments/1
+Accept: application/json
+
+### Bought exactly one year ago: still Short
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/2/investments/4
+Accept: application/json
+
+### Every lot at a loss
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/4/investments/5
+Accept: application/json
+
+### Short-term gain
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/5/investments/7
+Accept: application/json
+
+### Another user's investment: 404, not 403
+GET {{InvestmentPerformance.Api_HostAddress}}/api/users/1/investments/4
+Accept: application/json

@@ -11,7 +11,7 @@ namespace InvestmentPerformance.Tests.Services;
 
 public class InvestmentServiceTests
 {
-    private static readonly DateOnly Today = new(2026, 8, 29);
+    private static readonly DateOnly AsOfDate = TestDates.AsOfDate;
 
     // Strict mocks fail the test if the service makes a call that wasn't set up.
     private readonly Mock<IInvestmentRepository> _investmentRepositoryMock = new(MockBehavior.Strict);
@@ -22,7 +22,7 @@ public class InvestmentServiceTests
         _investmentRepositoryMock.Object,
         _marketPriceProviderMock.Object,
         _performanceCalculatorMock.Object,
-        new FakeTimeProvider(new DateTimeOffset(Today, TimeOnly.MinValue, TimeSpan.Zero)),
+        new FakeTimeProvider(new DateTimeOffset(AsOfDate, TimeOnly.MinValue, TimeSpan.Zero)),
         NullLogger<InvestmentService>.Instance);
 
     [Fact]
@@ -79,7 +79,7 @@ public class InvestmentServiceTests
         var performance = new PerformanceResult(10, 150m, 2305m, Term.Short, 805m, [new LotPerformance(lot, 2305m, Term.Short, 805m)]);
         _investmentRepositoryMock.Setup(r => r.GetInvestmentAsync(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(investment);
         _marketPriceProviderMock.Setup(p => p.GetCurrentPriceAsync("SOUP", It.IsAny<CancellationToken>())).ReturnsAsync(230.50m);
-        _performanceCalculatorMock.Setup(c => c.Calculate(investment.Lots, 230.50m, Today)).Returns(performance);
+        _performanceCalculatorMock.Setup(c => c.Calculate(investment.Lots, 230.50m, AsOfDate)).Returns(performance);
 
         var result = await CreateSut().GetInvestmentDetailsAsync(1, 1, CancellationToken.None);
 
@@ -110,6 +110,6 @@ public class InvestmentServiceTests
         Id = 1,
         UserId = 1,
         Security = new Security { Symbol = "SOUP", Name = "Big SOUP Incorporated" },
-        Lots = [new Lot { Id = 1, Shares = 10, CostBasisPerShare = 150m, PurchaseDate = Today.AddMonths(-3) }]
+        Lots = [new Lot { Id = 1, Shares = 10, CostBasisPerShare = 150m, PurchaseDate = AsOfDate.AddMonths(-3) }]
     };
 }

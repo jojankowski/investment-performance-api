@@ -51,19 +51,23 @@ public class InvestmentService(
         investment.Id,
         investment.Security.Name,
         investment.Security.Symbol,
-        performance.Shares,
-        performance.CostBasisPerShare,
-        currentPrice,
+        TrimZeros(performance.Shares),
+        TrimZeros(performance.CostBasisPerShare),
+        TrimZeros(currentPrice),
         performance.CurrentValue,
         performance.Term,
         performance.TotalGainLoss,
         [.. performance.Lots.Select(lot => new LotDetails(
             lot.Lot.Id,
             lot.Lot.PurchaseDate,
-            lot.Lot.Shares,
-            lot.Lot.CostBasisPerShare,
+            TrimZeros(lot.Lot.Shares),
+            TrimZeros(lot.Lot.CostBasisPerShare),
             lot.CurrentValue,
             lot.Term,
             lot.GainLoss))
         ]);
+
+    // SQLite returns whole numbers with a trailing ".0" (15.0 shares). Dividing by this value keeps the
+    // number the same but drops trailing zeros. Money amounts are left alone and always show cents.
+    private static decimal TrimZeros(decimal value) => value / 1.0000000000000000000000000000m;
 }
