@@ -1,8 +1,8 @@
 using InvestmentPerformance.Api.Models.Calculations;
 using InvestmentPerformance.Api.Models.Entities;
-using InvestmentPerformance.Api.Utilities;
+using InvestmentPerformance.Api.Services;
 
-namespace InvestmentPerformance.Tests.Utilities;
+namespace InvestmentPerformance.Tests.Services;
 
 public class PerformanceCalculatorTests
 {

@@ -2,7 +2,7 @@ using InvestmentPerformance.Api.Interfaces;
 using InvestmentPerformance.Api.Models.Calculations;
 using InvestmentPerformance.Api.Models.Entities;
 
-namespace InvestmentPerformance.Api.Utilities;
+namespace InvestmentPerformance.Api.Services;
 
 public class PerformanceCalculator : IPerformanceCalculator
 {

@@ -1,6 +1,6 @@
 using InvestmentPerformance.Api.Data;
 using InvestmentPerformance.Api.Interfaces;
-using InvestmentPerformance.Api.Utilities;
+using InvestmentPerformance.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +15,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IPerformanceCalculator, PerformanceCalculator>();
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
 builder.Services.AddScoped<IMarketPriceProvider, DatabaseMarketPriceProvider>();
+builder.Services.AddScoped<IInvestmentService, InvestmentService>();
 
 var app = builder.Build();
 
