@@ -1,0 +1,62 @@
+# Investment Performance API
+
+Small .NET 10 web API for the investment performance exercise.
+
+## How to run
+
+You need the .NET 10 SDK. All commands are run from this folder (`InvestmentPerformanceAPI`).
+
+```
+cd src/InvestmentPerformance.Api
+dotnet run
+```
+
+Then open http://localhost:5219/scalar/v1 in your browser (Visual Studio opens it for you). You can hit the endpoints from there. If you're in Visual Studio or Rider, there's also `InvestmentPerformance.Api.http` in the project folder with requests for the cases I tested.
+
+Tests: `dotnet test`
+
+## Endpoints
+
+```
+GET /api/users/{userId}/investments
+GET /api/users/{userId}/investments/{investmentId}
+```
+
+The first one gives you the id and name of each investment. The second gives you the details. It also lists each purchase separately.
+
+An unknown user or investment is a 404, and an id below 1 is a 400. Errors come back in the standard problem details format.
+
+## Test data
+
+It uses SQLite, and locally the database gets wiped and re-seeded every time the app starts, so the dates are always relative to today. Some users to try:
+
+- 1 has a few investments, and one of them was bought twice
+- 2 bought something exactly a year ago (should still be short term)
+- 3 has nothing
+- 4 is down on everything except the duck stock
+- 5 has a short-term gain
+
+## Assumptions
+
+A user can buy the same thing more than once, so I store each purchase as a lot. That changes a few things:
+
+- Cost basis per share is a weighted average (total paid / total shares), not an average of the prices.
+- Term is per lot. If an investment has both short and long term lots, it shows as `Mixed`. The spec only mentions short and long, so this was my call.
+
+Other stuff:
+
+- "A year or less" is short term, using today's date in UTC.
+- Money is rounded to cents and per-share prices to 4 decimal places. Each lot is rounded on its own, so the lot gains can be a cent off the total.
+- Cost basis is just the purchase price. Fees and commissions aren't included.
+- Bonds and mutual funds use the same shares times price math as stocks. Real bond pricing (face value, accrued interest) is out of scope.
+- Current prices live in the database. They're behind an interface so a real price feed could be swapped in.
+- There's no auth, so the user id just comes from the URL. If you ask for someone else's investment you get a 404 instead of a 403, so you can't tell which ids exist.
+- I only handled buys. Sells would need something like FIFO to decide which lots get sold.
+- There's no HTTPS redirect in the app. In production TLS would normally end at a load balancer or proxy in front of it.
+
+## Things I'd do next
+
+- Auth (take the user id from the token instead of the URL)
+- A real price feed
+- SQL Server and proper migrations instead of `EnsureCreated`
+- Health checks

@@ -4,6 +4,7 @@ using InvestmentPerformance.Api.Handlers;
 using InvestmentPerformance.Api.Interfaces;
 using InvestmentPerformance.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +13,9 @@ builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+// Reads the connection string from the finished configuration, including any override a test host adds.
+builder.Services.AddDbContext<AppDbContext>((services, options) =>
+    options.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("Default")));
 builder.Services.AddHostedService<DatabaseInitializer>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
@@ -30,9 +32,11 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
+// The OpenAPI document and the interactive API page are only for local development.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.MapControllers();
